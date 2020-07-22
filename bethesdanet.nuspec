@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>bethesdanet</id>
+    <version>0.0.2</version>
+    <title>Bethesda.Net Launcher</title>
+    <authors>Bethesda Softworks LLC</authors>
+    <owners>KanarekLife</owners>
+    <projectUrl>https://bethesda.net/pl/game/bethesda-launcher</projectUrl>
+    <iconUrl>https://lutris.net/media/games/icons/25-mxEFO.jpg</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The Bethesda Launcher is your gateway to the best PC games Bethesda has to offer. And there's even more to come. Download now!</description>
+    <summary>The Bethesda Launcher is your gateway to the best PC games Bethesda has to offer. And there's even more to come. Download now!</summary>
+    <tags>bethesda bethesdanetlauncher bethesda.net games gaming</tags>
+  </metadata>
+</package>
