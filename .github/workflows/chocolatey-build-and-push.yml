@@ -9,8 +9,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Remove .git foler
+      - name: Remove .git folder
         run: rm .git -Force -Recurse
+      - name: Remove .github folder
+        run: rm .github -Force -Recurse
       - name: Install chocolatey
         run: Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
       - name: Authenticate
