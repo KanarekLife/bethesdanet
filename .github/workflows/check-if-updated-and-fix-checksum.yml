@@ -16,5 +16,15 @@ jobs:
         CHECKSUM=$(curl https://download.cdp.bethesda.net/BethesdaNetLauncher_Setup.exe --output - | sha256sum - | awk '{print toupper($1)}') &&
         sed -i "s/$CHECKSUM_REGEX/checksum      = '$CHECKSUM'/g" tools/chocolateyinstall.ps1 &&
         sed -i "s/$CHECKSUM_REGEX_64/checksum64    = '$CHECKSUM'/g" tools/chocolateyinstall.ps1
+    - name: Has Changes
+      id: changes
+      uses: UnicornGlobal/has-changes-action@v1.0.11
+    - name: Increase SemVer
+      if: steps.changes.outputs.changed == 1
+      run: >
+        OLDVER="$(awk '$0 ~ /<version>(.*)<\/version>/ {print $1}' bethesdanet.nuspec | sed 's/\r//' | sed 's/<version>//' | sed 's/<\/version>//')" &&
+        NEWVER="$(echo $OLDVER | awk -F. '{new_ver=$1 FS $2 FS $3+1; print new_ver}')" &&
+        sed -i "s/${OLDVER}/${NEWVER}/g" bethesdanet.nuspec
     - name: Create Pull Request
+      if: steps.changes.outputs.changed == 1
       uses: peter-evans/create-pull-request@v3
