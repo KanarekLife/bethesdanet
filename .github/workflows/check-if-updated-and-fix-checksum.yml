@@ -1,0 +1,20 @@
+name: Check if program updated and fix checksum
+
+on:
+  schedule:
+    - cron: '37 21 * * 1,5'
+
+jobs:
+  check-update:
+   runs-on: ubuntu-latest
+   steps:
+    - uses: actions/checkout@v2
+    - name: Update checksum
+      run: >
+        CHECKSUM_REGEX='checksum      = '[^/]*'' &&
+        CHECKSUM_REGEX_64='checksum64    = '[^/]*'' &&
+        CHECKSUM=$(curl https://download.cdp.bethesda.net/BethesdaNetLauncher_Setup.exe --output - | sha256sum - | awk '{print toupper($1)}') &&
+        sed -i "s/$CHECKSUM_REGEX/checksum      = '$CHECKSUM'/g" tools/chocolateyinstall.ps1 &&
+        sed -i "s/$CHECKSUM_REGEX_64/checksum64    = '$CHECKSUM'/g" tools/chocolateyinstall.ps1
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
