@@ -9,22 +9,23 @@ jobs:
    runs-on: ubuntu-latest
    steps:
     - uses: actions/checkout@v2
-    - name: Update checksum
+    - name: Update checksum and semver
       run: >
+        OLD_CHECKSUM=$(cat tools/chocolateyinstall.ps1 | grep 'checksum64' | awk '{print $3}' | tr -d \' | tr -d '[:space:]') &&
         CHECKSUM_REGEX='checksum      = '[^/]*'' &&
         CHECKSUM_REGEX_64='checksum64    = '[^/]*'' &&
         CHECKSUM=$(curl https://download.cdp.bethesda.net/BethesdaNetLauncher_Setup.exe --output - | sha256sum - | awk '{print toupper($1)}') &&
-        sed -i "s/$CHECKSUM_REGEX/checksum      = '$CHECKSUM'/g" tools/chocolateyinstall.ps1 &&
-        sed -i "s/$CHECKSUM_REGEX_64/checksum64    = '$CHECKSUM'/g" tools/chocolateyinstall.ps1
+        if [[ "$OLD_CHECKSUM" != "$CHECKSUM" ]] ; then
+          echo 'test' &&
+          sed -i "s/$CHECKSUM_REGEX/checksum      = '$CHECKSUM'/g" tools/chocolateyinstall.ps1 &&
+          sed -i "s/$CHECKSUM_REGEX_64/checksum64    = '$CHECKSUM'/g" tools/chocolateyinstall.ps1
+          OLDVER="$(awk '$0 ~ /<version>(.*)<\/version>/ {print $1}' bethesdanet.nuspec | sed 's/\r//' | sed 's/<version>//' | sed 's/<\/version>//')" &&
+          NEWVER="$(echo $OLDVER | awk -F. '{new_ver=$1 FS $2 FS $3+1; print new_ver}')" &&
+          sed -i "s/${OLDVER}/${NEWVER}/g" bethesdanet.nuspec
+        fi
     - name: Has Changes
       id: changes
       uses: UnicornGlobal/has-changes-action@v1.0.11
-    - name: Increase SemVer
-      if: steps.changes.outputs.changed == 1
-      run: >
-        OLDVER="$(awk '$0 ~ /<version>(.*)<\/version>/ {print $1}' bethesdanet.nuspec | sed 's/\r//' | sed 's/<version>//' | sed 's/<\/version>//')" &&
-        NEWVER="$(echo $OLDVER | awk -F. '{new_ver=$1 FS $2 FS $3+1; print new_ver}')" &&
-        sed -i "s/${OLDVER}/${NEWVER}/g" bethesdanet.nuspec
     - name: Create Pull Request
       if: steps.changes.outputs.changed == 1
       uses: peter-evans/create-pull-request@v3
